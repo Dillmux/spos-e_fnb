@@ -1,5 +1,7 @@
 # SPOS-E (Smart Point of Sale - Engine) F&B Edition
 
+<img src="./spose-logo.webp" width="300px">
+
 **SPOS-E F&B Edition** adalah sistem Kasir POS (Point of Sale) modern serbaguna yang dirancang khusus untuk industri Food & Beverage (F&B) seperti Restoran, Kafe, Kedai Kopi, dan Usaha Kuliner. Aplikasi ini mengintegrasikan pemrosesan transaksi kasir instan, manajemen stok bahan baku otomatis (Bill of Materials / BOM), integrasi pembayaran QRIS dinamis via Midtrans, serta tampilan dapur real-time dalam satu platform terpadu.
 
 ---

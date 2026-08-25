@@ -16,7 +16,6 @@
   import ShiftModal from "$lib/components/pos/ShiftModal.svelte";
   import PrintableReceipt from "$lib/components/pos/PrintableReceipt.svelte";
   import {
-    Store,
     Monitor,
     Tv,
     LayoutGrid,
@@ -25,13 +24,14 @@
     History,
     BarChart3,
     Users,
-    Printer,
     Wallet,
     LogOut,
     User as UserIcon,
     Menu,
     X,
   } from "lucide-svelte";
+  import Icon from "$lib/assets/icon.png";
+  import Favicon from "$lib/assets/favicon.webp";
 
   let isShiftModalOpen = false;
   let isFullscreen = false;
@@ -124,6 +124,10 @@
   }
 </script>
 
+<svelte:head>
+  <link rel="icon" type="image/png" href={Favicon} />
+</svelte:head>
+
 <div
   class="h-full flex flex-col bg-brand-surface text-slate-900 overflow-hidden font-sans"
 >
@@ -148,12 +152,12 @@
           {/if}
         </button>
 
-        <a href="/pos" class="flex items-center gap-2.5 group">
-          <div
-            class="p-2 bg-brand-primary rounded-xl text-white shadow-sm group-hover:scale-105 transition"
-          >
-            <Store class="w-5 h-5" />
-          </div>
+        <a href="/pos" class="flex items-center gap-3 group">
+          <img
+            src={Icon}
+            alt="Logo"
+            class="h-8 shadow-sm group-hover:scale-105 transition"
+          />
           <div>
             <h1
               class="font-extrabold text-sm sm:text-base leading-tight tracking-wide text-white truncate max-w-[160px] sm:max-w-none"
@@ -316,7 +320,7 @@
         on:click={() => (isMobileNavOpen = false)}
       />
       <div
-        class="fixed top-[57px] left-0 bottom-0 w-72 bg-brand-dark border-r border-slate-800 text-white z-50 p-4 overflow-y-auto flex flex-col justify-between shadow-2xl lg:hidden animate-in slide-in-from-left duration-200"
+        class="fixed top-[57px] left-0 bottom-0 w-72 bg-brand-dark border-r border-slate-800 text-white z-[40] p-4 overflow-y-auto flex flex-col justify-between shadow-2xl lg:hidden animate-in slide-in-from-left duration-200"
       >
         <div class="space-y-4">
           <div

@@ -2,13 +2,8 @@
   import { goto } from "$app/navigation";
   import { auth, isAuthenticated } from "$lib/stores/auth";
   import { toast } from "$lib/stores/toast";
-  import {
-    Store,
-    Lock,
-    User as UserIcon,
-    LogIn,
-    AlertCircle,
-  } from "lucide-svelte";
+  import { Lock, User as UserIcon, LogIn, AlertCircle } from "lucide-svelte";
+  import Icon from "$lib/assets/icon.png";
 
   let username = "";
   let password = "";
@@ -54,12 +49,8 @@
     class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 p-8 space-y-6"
   >
     <!-- Header -->
-    <div class="text-center space-y-2">
-      <div
-        class="inline-flex p-4 bg-brand-primary text-white rounded-2xl shadow-lg mb-1"
-      >
-        <Store class="w-10 h-10" />
-      </div>
+    <div class="flex flex-col items-center text-center space-y-2">
+      <img src={Icon} alt="Logo" class="h-32" />
       <h2 class="text-2xl font-extrabold text-slate-900">
         Masuk Kasir & Backoffice
       </h2>
