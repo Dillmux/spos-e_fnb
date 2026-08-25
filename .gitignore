@@ -1,0 +1,55 @@
+# Database Files (Local SQLite)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/spos.db
+backend/spos_test.db
+
+# Environment & Sensitive Config
+.env
+.env.local
+.env.production
+!.env.example
+
+# Go Binaries & Build Output
+backend/public/*
+!backend/public/.gitkeep
+backend/spos-server
+backend/cmd/api/api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# SvelteKit & Node Dependencies
+frontend/node_modules/
+frontend/build/
+frontend/.svelte-kit/
+frontend/dist/
+.svelte-kit/
+node_modules/
+
+# Logs & Temp Artifacts
+*.log
+logs/
+tmp/
+temp/
+
+# Operating System & IDE Metadata
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*~
+AGENT.md
+DB.md
+DESIGN.md
