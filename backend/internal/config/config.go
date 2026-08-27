@@ -53,7 +53,7 @@ func LoadConfig() *Config {
 
 	midtransServerKey := getEnv("MIDTRANS_SERVER_KEY", "SB-Mid-server-placeholder")
 	midtransClientKey := getEnv("MIDTRANS_CLIENT_KEY", "SB-Mid-client-placeholder")
-	midtransIsProdStr := getEnv("MIDTRANS_IS_PRODUCTION", "false")
+	midtransIsProdStr := getEnv("MIDTRANS_IS_PRODUCTION", "true")
 	midtransIsProd, _ := strconv.ParseBool(midtransIsProdStr)
 
 	return &Config{

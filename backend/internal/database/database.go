@@ -34,14 +34,26 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("gagal menghubungkan driver database (%s): %w", cfg.DBDriver, err)
 	}
 
+	driverName := strings.ToLower(cfg.DBDriver)
 	sqlDB, err := db.DB()
 	if err == nil {
-		sqlDB.SetMaxIdleConns(10)
-		sqlDB.SetMaxOpenConns(100)
+		if driverName == "sqlite" || driverName == "sqlite3" || driverName == "" {
+			// Aktifkan WAL mode & PRAGMA optimasi konkurensi SQLite
+			_ = db.Exec("PRAGMA journal_mode = WAL;").Error
+			_ = db.Exec("PRAGMA busy_timeout = 5000;").Error
+			_ = db.Exec("PRAGMA synchronous = NORMAL;").Error
+			_ = db.Exec("PRAGMA cache_size = -2000;").Error
+
+			sqlDB.SetMaxOpenConns(5)
+			sqlDB.SetMaxIdleConns(2)
+			log.Printf("[DATABASE] SQLite dikonfigurasi dengan WAL mode (Pool: MaxOpen=5, MaxIdle=2)")
+		} else {
+			sqlDB.SetMaxOpenConns(100)
+			sqlDB.SetMaxIdleConns(10)
+			log.Printf("[DATABASE] PostgreSQL dikonfigurasi (Pool: MaxOpen=100, MaxIdle=10)")
+		}
 		sqlDB.SetConnMaxLifetime(1 * time.Hour)
 	}
-
-	log.Printf("[DATABASE] Koneksi berhasil dibuat menggunakan driver: %s (Pool: MaxOpen=100, MaxIdle=10)", cfg.DBDriver)
 
 	// Jalankan auto-migrasi skema tabel untuk seluruh entitas sistem
 	if err := MigrateSchema(db); err != nil {

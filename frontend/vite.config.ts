@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [sveltekit()],
+    build: {
+      sourcemap: false,
+    },
     server: {
       host: "0.0.0.0",
       port,

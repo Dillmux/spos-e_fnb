@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -44,6 +45,9 @@ func setupStaticSPA(app *fiber.App) {
 		Root:         http.FS(fsys),
 		Index:        "index.html",
 		NotFoundFile: "index.html",
+		Next: func(c *fiber.Ctx) bool {
+			return strings.HasPrefix(c.Path(), "/api/")
+		},
 	}))
 }
 

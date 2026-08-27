@@ -428,6 +428,19 @@ func (h *SetupHandler) Initialize(c *fiber.Ctx) error {
 		saveSysConfig(tx, "midtrans_client_key", req.MidtransClientKey)
 	}
 
+	// Tulis konfigurasi utama & MIDTRANS_IS_PRODUCTION=true ke .env
+	envUpdatesFinal := map[string]string{
+		"MIDTRANS_IS_PRODUCTION": "true",
+	}
+	if req.MidtransServerKey != "" {
+		envUpdatesFinal["MIDTRANS_SERVER_KEY"] = req.MidtransServerKey
+	}
+	if req.MidtransClientKey != "" {
+		envUpdatesFinal["MIDTRANS_CLIENT_KEY"] = req.MidtransClientKey
+	}
+	_ = updateDotEnv(envUpdatesFinal)
+	os.Setenv("MIDTRANS_IS_PRODUCTION", "true")
+
 	if err := tx.Commit().Error; err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, "Gagal mengomit transaksi database", err.Error())
 	}

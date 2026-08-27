@@ -17,6 +17,7 @@ backend/public/*
 !backend/public/.gitkeep
 backend/spos-server
 backend/cmd/api/api
+backend/bin/*
 *.exe
 *.exe~
 *.dll
@@ -53,3 +54,4 @@ Thumbs.db
 AGENT.md
 DB.md
 DESIGN.md
+NOTE.txt
