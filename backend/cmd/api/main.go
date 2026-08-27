@@ -32,7 +32,7 @@ import (
 	"github.com/spos/backend/internal/utils"
 )
 
-//go:embed public/*
+//go:embed all:public
 var embeddedPublic embed.FS
 
 func setupStaticSPA(app *fiber.App) {

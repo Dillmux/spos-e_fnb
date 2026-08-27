@@ -1,192 +1,72 @@
-<!doctype html>
-<html lang="id">
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-brand-surface text-brand-dark antialiased">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SPOS - Smart POS & Manajemen Resto</title>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.png" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root {
-        --bg-dark: #0f172a;
-        --card-bg: #1e293b;
-        --accent: #6366f1;
-        --accent-hover: #4f46e5;
-        --text-primary: #f8fafc;
-        --text-secondary: #94a3b8;
-        --success: #10b981;
-        --border: #334155;
-      }
-
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: "Plus Jakarta Sans", sans-serif;
-      }
-
-      body {
-        background-color: var(--bg-dark);
-        color: var(--text-primary);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-      }
-
-      .container {
-        max-width: 900px;
-        width: 100%;
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 3rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .container::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(
-          circle,
-          rgba(99, 102, 241, 0.1) 0%,
-          transparent 60%
-        );
-        pointer-events: none;
-      }
-
-      .logo-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(99, 102, 241, 0.15);
-        color: #818cf8;
-        padding: 6px 16px;
-        border-radius: 9999px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        border: 1px solid rgba(99, 102, 241, 0.3);
-      }
-
-      .status-dot {
-        width: 8px;
-        height: 8px;
-        background-color: var(--success);
-        border-radius: 50%;
-        box-shadow: 0 0 12px var(--success);
-      }
-
-      h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        letter-spacing: -0.025em;
-        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-
-      p {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-        line-height: 1.6;
-        margin-bottom: 2rem;
-        max-width: 650px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
-        margin-top: 2rem;
-        text-align: left;
-      }
-
-      .card {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: all 0.2s ease;
-      }
-
-      .card:hover {
-        border-color: var(--accent);
-        transform: translateY(-2px);
-      }
-
-      .card h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--text-primary);
-      }
-
-      .card p {
-        font-size: 0.875rem;
-        margin-bottom: 0;
-        color: var(--text-secondary);
-      }
-
-      .badge {
-        display: inline-block;
-        font-size: 0.75rem;
-        padding: 2px 8px;
-        border-radius: 4px;
-        background: #334155;
-        color: #e2e8f0;
-        margin-top: 8px;
-        font-weight: 600;
-      }
-    </style>
+    <title>Smart POS & Resto Engine</title>
+    <link href="/_app/immutable/entry/start.DUn-VwtS.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/vqKnO9sb.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DB3nX2sk.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DvT4cvsI.js" rel="modulepreload">
+		<link href="/_app/immutable/entry/app.BG2QFcAq.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/D_gHRZxA.js" rel="modulepreload">
+		<link href="/_app/immutable/nodes/0.Bl9l9bcE.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/D0QH3NT1.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BBZXNspj.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BIOPMpm-.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/_c5sgWnN.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/HsNe6EOW.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/cXvO5RzS.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DSSxH8Fn.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DSFNd8jg.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/IBfF2azy.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CdCSeRzN.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/BRlmDg_7.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/C8I3PzM6.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/JmA3uGNB.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DsJgmrKZ.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/CoYLK41R.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/MwBKQSBt.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/R0fg3W5N.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Cv-I2nje.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/B3D5W7JU.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/DL-wet3U.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/Bj8KlzIm.js" rel="modulepreload">
+		<link href="/_app/immutable/chunks/LdsmVfVR.js" rel="modulepreload">
+		
+		<link href="/_app/immutable/assets/0.BRbegYuS.css" rel="stylesheet">
   </head>
-  <body>
-    <div class="container">
-      <div class="logo-badge">
-        <span class="status-dot"></span>
-        SPOS Engine Running v1.0
-      </div>
-      <h1>Smart POS & Resto Engine</h1>
-      <p>
-        Backend API & Embedded SPA Engine for modular Point of Sale,
-        multi-driver persistence, BOM calculations, dynamic Midtrans payment
-        gateway, and cash shift management.
-      </p>
+  <body
+    data-sveltekit-preload-data="hover"
+    class="h-full font-sans select-none overflow-x-hidden"
+  >
+    <div class="h-full flex flex-col">
+			<script>
+				{
+					__sveltekit_ru6ila = {
+						base: ""
+					};
 
-      <div class="grid">
-        <div class="card">
-          <h3>REST API v1</h3>
-          <p>Base route: <code>/api/v1</code></p>
-          <span class="badge">Golang Fiber v2</span>
-        </div>
-        <div class="card">
-          <h3>Database</h3>
-          <p>SQLite / PostgreSQL dual-driver with ACID transactions.</p>
-          <span class="badge">GORM</span>
-        </div>
-        <div class="card">
-          <h3>Payment Gateway</h3>
-          <p>Midtrans Dynamic QRIS & webhook SHA-512 validation.</p>
-          <span class="badge">Midtrans Core</span>
-        </div>
-      </div>
-    </div>
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/_app/immutable/entry/start.DUn-VwtS.js"),
+						import("/_app/immutable/entry/app.BG2QFcAq.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
   </body>
 </html>

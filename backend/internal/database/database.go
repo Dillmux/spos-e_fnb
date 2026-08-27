@@ -9,18 +9,21 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/spos/backend/internal/config"
 	"github.com/spos/backend/internal/models"
+	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-// InitDB menginisialisasi koneksi database GORM berdasarkan konfigurasi driver (SQLite/PostgreSQL) dan menjalankan auto-migrasi skema.
+// InitDB menginisialisasi koneksi database GORM berdasarkan konfigurasi driver (SQLite/PostgreSQL/MySQL) dan menjalankan auto-migrasi skema.
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	var dialector gorm.Dialector
 
 	switch strings.ToLower(cfg.DBDriver) {
 	case "postgres", "postgresql":
 		dialector = postgres.Open(cfg.DBDsn)
+	case "mysql", "mariadb":
+		dialector = mysql.Open(cfg.DBDsn)
 	case "sqlite", "sqlite3":
 		dialector = sqlite.Open(cfg.DBDsn)
 	default:

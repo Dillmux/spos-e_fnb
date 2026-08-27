@@ -49,7 +49,7 @@
       // Initialize/Restore user session if token exists
       await auth.initSession();
 
-      const currentPath = $page.url.pathname;
+      const currentPath = $page?.url?.pathname || "";
       const initialized = $isInitialized;
 
       if (!initialized && currentPath !== "/setup") {
@@ -82,13 +82,14 @@
 
   $: {
     // Close mobile nav on route change
-    if ($page.url.pathname) {
+    if ($page?.url?.pathname) {
       isMobileNavOpen = false;
     }
 
     // Pengawal rute reaktif saat rute atau status otentikasi berubah
     if (
       typeof window !== "undefined" &&
+      $page?.url?.pathname &&
       !$config.checkingStatus &&
       !$auth.isLoading
     ) {
@@ -132,7 +133,7 @@
   class="h-full flex flex-col bg-brand-surface text-slate-900 overflow-hidden font-sans"
 >
   <!-- Top Navigation Header (Hidden during Setup Wizard, Login, or Fullscreen WDL) -->
-  {#if $page.url.pathname !== "/" && !$page.url.pathname.startsWith("/setup") && !$page.url.pathname.startsWith("/login") && !($page.url.pathname.startsWith("/wld") && isFullscreen)}
+  {#if $page?.url?.pathname && $page.url.pathname !== "/" && !$page.url.pathname.startsWith("/setup") && !$page.url.pathname.startsWith("/login") && !($page.url.pathname.startsWith("/wld") && isFullscreen)}
     <header
       class="bg-brand-dark text-white px-3 sm:px-5 py-2.5 flex items-center justify-between shadow-md relative z-[50] border-b border-slate-800"
     >

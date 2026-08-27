@@ -6,12 +6,15 @@ const config = {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter({
-      pages: '../backend/public',
-      assets: '../backend/public',
+      pages: '../backend/cmd/api/public',
+      assets: '../backend/cmd/api/public',
       fallback: 'index.html',
       precompress: false,
       strict: false
-    })
+    }),
+    prerender: {
+      handleHttpError: 'warn'
+    }
   }
 };
 

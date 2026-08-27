@@ -14,6 +14,7 @@ import (
 	"github.com/spos/backend/internal/models"
 	"github.com/spos/backend/internal/utils"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -170,6 +171,8 @@ func (h *SetupHandler) TestDB(c *fiber.Ctx) error {
 	switch strings.ToLower(req.Driver) {
 	case "postgres", "postgresql":
 		dialector = postgres.Open(req.DSN)
+	case "mysql", "mariadb":
+		dialector = mysql.Open(req.DSN)
 	default:
 		dialector = sqlite.Open(req.DSN)
 	}
