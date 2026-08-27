@@ -236,6 +236,7 @@ export interface DailyReport {
   date?: string;
   total_orders?: number;
   total_transactions?: number;
+  total_items_sold?: number;
   total_revenue?: number;
   total_sales?: number;
   total_tax?: number;
@@ -252,9 +253,14 @@ export interface DailyReport {
     qris: number;
   };
   top_products?: {
+    product_id?: string;
+    product_name?: string;
     name: string;
+    total_sold?: number;
+    quantity_sold?: number;
     qty: number;
     revenue: number;
+    total_revenue?: number;
   }[];
 }
 

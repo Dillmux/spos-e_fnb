@@ -26,7 +26,7 @@
 
 - **Real-time Display System (KDS & WLD)**:
   - **Kitchen Display System (`/kds`)**: Tampilan khusus tim dapur untuk memperbarui status pembuatan menu (_Queued_ → _Cooking_ → _Ready_).
-  - **Waiter Live Display (`/wld`)**: Tampilan khusus pramusaji untuk memantau makanan yang siap disajikan ke meja pelanggan.
+  - **Waitingline Display (`/wld`)**: Tampilan khusus pramusaji untuk memantau makanan yang siap disajikan ke meja pelanggan.
 
 - **Keamanan & Manajemen Akses Pengguna**:
   - Otentikasi berbasis **JWT Bearer Token** dan **Role-Based Access Control (RBAC)** (_Superadmin_, _Manager_, _Cashier_, _Kitchen_, _Waiter_).
@@ -179,7 +179,7 @@ Saat pertama kali aplikasi dibuka di browser, **Setup Guard** akan secara otomat
 ### 4. Pelacakan Pesanan Dapur & Waiter (KDS & WLD)
 
 - **Kitchen Display System (`/kds`)**: Tim dapur dapat melihat pesanan baru yang masuk, mengklik **Mulai Masak** saat hidangan diproses, dan mengklik **Siap Disajikan** setelah masakan matang.
-- **Waiter Live Display (`/wld`)**: Pramusaji dapat melihat daftar hidangan yang berstatus _Ready_ dan mengklik **Telah Disajikan** setelah makanan diantarkan ke meja pelanggan.
+- **Waitingline Display (`/wld`)**: Pramusaji dapat melihat daftar hidangan yang berstatus _Ready_ dan mengklik **Telah Disajikan** setelah makanan diantarkan ke meja pelanggan.
 
 ---
 

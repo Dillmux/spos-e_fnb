@@ -55,18 +55,37 @@
       const profit = profitRes.data || {};
       const top = topRes.data || [];
 
+      const totalItemsSold = top.reduce((acc: number, item: any) => {
+        const itemQty = Number(item.total_sold ?? item.quantity_sold ?? item.qty ?? item.total_qty ?? 0);
+        return acc + itemQty;
+      }, 0);
+
+      const totalOrdersCount = Number(sales.total_orders ?? sales.total_transactions ?? 0);
+
       reportData = {
         date: selectedDate,
-        total_revenue: profit.gross_revenue || sales.total_revenue || 0,
-        total_cogs: profit.total_cogs || 0,
-        gross_profit: profit.gross_profit || 0,
-        total_transactions: sales.total_transactions || 0,
+        total_revenue: Number(profit.gross_revenue ?? sales.total_revenue ?? 0),
+        total_cogs: Number(profit.total_cogs ?? 0),
+        gross_profit: Number(profit.gross_profit ?? 0),
+        total_transactions: totalOrdersCount,
+        total_orders: totalOrdersCount,
+        total_items_sold: totalItemsSold,
         payment_breakdowns: sales.payment_breakdowns || [],
-        top_products: top.map((t: any) => ({
-          name: t.name || t.product_name || 'Menu',
-          qty: t.qty || t.quantity_sold || t.total_qty || 0,
-          revenue: t.revenue || t.total_revenue || 0,
-        })),
+        top_products: top.map((t: any) => {
+          const qtyVal = Number(t.total_sold ?? t.quantity_sold ?? t.qty ?? t.total_qty ?? 0);
+          const revVal = Number(t.total_revenue ?? t.revenue ?? 0);
+          const pName = t.product_name || t.name || 'Menu';
+          return {
+            product_id: t.product_id || '',
+            product_name: pName,
+            name: pName,
+            total_sold: qtyVal,
+            quantity_sold: qtyVal,
+            qty: qtyVal,
+            revenue: revVal,
+            total_revenue: revVal,
+          };
+        }),
       };
     } catch (err: any) {
       toast.error(err.message || 'Gagal memuat data laporan');
@@ -88,6 +107,7 @@
       ['Total Modal / COGS', reportData.total_cogs || 0],
       ['Total Laba Kotor / Gross Profit', reportData.gross_profit || 0],
       ['Total Transaksi Selesai', reportData.total_transactions || 0],
+      ['Total Porsi / Produk Terjual', reportData.total_items_sold || 0],
       [],
       ['=== DETAIL PRODUK TERLARIS (TOP SELLING) ==='],
       ['Nama Menu', 'Jumlah Terjual (Qty)', 'Total Omset (Rp)'],

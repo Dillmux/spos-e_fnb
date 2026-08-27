@@ -84,12 +84,16 @@ func (b *SSEBroker) StreamHandler(c *fiber.Ctx) error {
 	messageChan := make(chan string, 10)
 	b.newClients <- messageChan
 
+	notify := c.Context().Done()
+
 	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		// Kirim ping pesan selamat datang awal
 		fmt.Fprintf(w, "event: connected\ndata: {\"status\":\"connected\"}\n\n")
-		_ = w.Flush()
+		if err := w.Flush(); err != nil {
+			b.defunct <- messageChan
+			return
+		}
 
-		notify := c.Context().Done()
 		for {
 			select {
 			case <-notify:
@@ -103,7 +107,10 @@ func (b *SSEBroker) StreamHandler(c *fiber.Ctx) error {
 					b.defunct <- messageChan
 					return
 				}
-				_ = w.Flush()
+				if err := w.Flush(); err != nil {
+					b.defunct <- messageChan
+					return
+				}
 			}
 		}
 	})

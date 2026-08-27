@@ -8,6 +8,9 @@
   $: totalOrders = report?.total_orders ?? report?.total_transactions ?? 0;
   $: grossProfit = report?.gross_profit ?? 0;
   $: totalCogs = report?.total_cogs ?? 0;
+  $: totalItemsSold = report?.total_items_sold ?? 
+    (report?.top_products?.reduce((acc, curr: any) => acc + (curr.total_sold ?? curr.quantity_sold ?? curr.qty ?? curr.total_qty ?? 0), 0) ?? 0);
+  $: totalTopProductsRevenue = report?.top_products?.reduce((a, c: any) => a + (c.total_revenue ?? c.revenue ?? 0), 0) ?? 0;
 
   $: cashSales = report?.sales_by_payment?.cash ?? 
     (report?.payment_breakdowns?.find((p) => p.payment_method === 'cash')?.total_amount ?? 0);
@@ -15,10 +18,11 @@
   $: qrisSales = report?.sales_by_payment?.qris ?? 
     (report?.payment_breakdowns?.filter((p) => p.payment_method.includes('qris') || p.payment_method.includes('midtrans'))
       ?.reduce((acc, curr) => acc + curr.total_amount, 0) ?? 0);
+
   function getTopProductInfo(item: any) {
     return {
       name: item.product_name || item.name || '',
-      qty: item.total_sold ?? item.qty ?? 0,
+      qty: item.total_sold ?? item.quantity_sold ?? item.qty ?? item.total_qty ?? 0,
       revenue: item.total_revenue ?? item.revenue ?? 0,
     };
   }
@@ -38,7 +42,7 @@
       <h3 class="text-2xl font-extrabold text-slate-900">
         Rp {totalRevenue.toLocaleString('id-ID')}
       </h3>
-      <p class="text-xs text-slate-500 font-semibold">{totalOrders} Transaksi Lunas</p>
+      <p class="text-xs text-slate-500 font-semibold">{totalOrders} Transaksi Lunas • {totalItemsSold} Porsi Terjual</p>
     </div>
 
     <!-- Gross Profit -->
@@ -93,10 +97,15 @@
   <!-- Top Products Table -->
   {#if report?.top_products && report.top_products.length > 0}
     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-      <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
-        <Award class="w-5 h-5 text-amber-500" />
-        Produk Terlaris Harian (Rank Sales)
-      </h4>
+      <div class="flex items-center justify-between">
+        <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+          <Award class="w-5 h-5 text-amber-500" />
+          Produk Terlaris Harian (Rank Sales)
+        </h4>
+        <span class="text-xs font-bold px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+          Total Terjual: {totalItemsSold} Porsi
+        </span>
+      </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -117,6 +126,13 @@
               </tr>
             {/each}
           </tbody>
+          <tfoot>
+            <tr class="border-t-2 border-slate-200 bg-slate-50 font-extrabold text-slate-900 text-sm">
+              <td class="py-3 px-4">TOTAL PERIODE TERPILIH</td>
+              <td class="py-3 px-4 text-center text-brand-primary">{totalItemsSold} porsi</td>
+              <td class="py-3 px-4 text-right">Rp {totalTopProductsRevenue.toLocaleString('id-ID')}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
