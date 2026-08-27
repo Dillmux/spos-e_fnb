@@ -47,4 +47,39 @@ export const setupApi = {
       body: JSON.stringify(formattedBody),
     });
   },
+
+  getSettings: async () => {
+    return request<{
+      outlet: any;
+      feature_flags: Record<string, boolean>;
+      midtrans_server_key: string;
+      midtrans_client_key: string;
+      midtrans_is_production: boolean;
+    }>('/setup/settings');
+  },
+
+  updateSettings: async (payload: {
+    supervisor_pin: string;
+    outlet_name?: string;
+    outlet_tagline?: string;
+    outlet_address?: string;
+    outlet_phone?: string;
+    receipt_footer?: string;
+    tax_percentage?: number;
+    service_percentage?: number;
+    is_tax_inclusive?: boolean;
+    enable_tables?: boolean;
+    enable_kds?: boolean;
+    enable_wld?: boolean;
+    enable_bom?: boolean;
+    enable_midtrans?: boolean;
+    midtrans_server_key?: string;
+    midtrans_client_key?: string;
+    midtrans_is_production?: boolean;
+  }) => {
+    return request<{ outlet_id: string; updated: boolean }>('/setup/settings', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
 };

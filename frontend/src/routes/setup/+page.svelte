@@ -38,6 +38,7 @@
     is_tax_inclusive: false,
     midtrans_server_key: "",
     midtrans_client_key: "",
+    midtrans_is_production: false,
     admin_name: "",
     admin_username: "",
     admin_password: "",

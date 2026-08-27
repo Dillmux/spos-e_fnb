@@ -69,9 +69,10 @@ type InitializeRequest struct {
 
 	ActiveModules ActiveModulesStruct `json:"active_modules"`
 
-	MidtransServerKey  string `json:"midtrans_server_key"`
-	MidtransClientKey  string `json:"midtrans_client_key"`
-	DBDriver           string `json:"db_driver"`
+	MidtransServerKey    string `json:"midtrans_server_key"`
+	MidtransClientKey    string `json:"midtrans_client_key"`
+	MidtransIsProduction bool   `json:"midtrans_is_production"`
+	DBDriver             string `json:"db_driver"`
 	DBConnectionString string `json:"db_connection_string"`
 
 	// Fallback flat JSON payload
@@ -441,9 +442,12 @@ func (h *SetupHandler) Initialize(c *fiber.Ctx) error {
 		saveSysConfig(tx, "midtrans_client_key", req.MidtransClientKey)
 	}
 
-	// Tulis konfigurasi utama & MIDTRANS_IS_PRODUCTION=true ke .env
+	isProdStr := fmt.Sprintf("%t", req.MidtransIsProduction)
+	saveSysConfig(tx, "midtrans_is_production", isProdStr)
+
+	// Tulis konfigurasi utama & MIDTRANS_IS_PRODUCTION ke .env
 	envUpdatesFinal := map[string]string{
-		"MIDTRANS_IS_PRODUCTION": "true",
+		"MIDTRANS_IS_PRODUCTION": isProdStr,
 	}
 	if req.MidtransServerKey != "" {
 		envUpdatesFinal["MIDTRANS_SERVER_KEY"] = req.MidtransServerKey
@@ -452,7 +456,7 @@ func (h *SetupHandler) Initialize(c *fiber.Ctx) error {
 		envUpdatesFinal["MIDTRANS_CLIENT_KEY"] = req.MidtransClientKey
 	}
 	_ = updateDotEnv(envUpdatesFinal)
-	os.Setenv("MIDTRANS_IS_PRODUCTION", "true")
+	os.Setenv("MIDTRANS_IS_PRODUCTION", isProdStr)
 
 	if err := tx.Commit().Error; err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, "Gagal mengomit transaksi database", err.Error())
@@ -469,5 +473,178 @@ func (h *SetupHandler) Initialize(c *fiber.Ctx) error {
 		"role":        user.Role,
 		"token":       token,
 		"initialized": true,
+	})
+}
+
+type UpdateSettingsRequest struct {
+	SupervisorPIN        string  `json:"supervisor_pin"`
+	OutletName           string  `json:"outlet_name"`
+	OutletTagline        string  `json:"outlet_tagline"`
+	OutletAddress        string  `json:"outlet_address"`
+	OutletPhone          string  `json:"outlet_phone"`
+	ReceiptFooter        string  `json:"receipt_footer"`
+	TaxPercentage        float64 `json:"tax_percentage"`
+	ServicePercentage    float64 `json:"service_percentage"`
+	IsTaxInclusive       bool    `json:"is_tax_inclusive"`
+	EnableTables         *bool   `json:"enable_tables"`
+	EnableKDS            *bool   `json:"enable_kds"`
+	EnableWLD            *bool   `json:"enable_wld"`
+	EnableBOM            *bool   `json:"enable_bom"`
+	EnableMidtrans       *bool   `json:"enable_midtrans"`
+	MidtransServerKey    string  `json:"midtrans_server_key"`
+	MidtransClientKey    string  `json:"midtrans_client_key"`
+	MidtransIsProduction *bool   `json:"midtrans_is_production"`
+}
+
+// GetSettings mengembalikan konfigurasi lengkap outlet, kredensial Midtrans, dan feature flags untuk Superadmin.
+func (h *SetupHandler) GetSettings(c *fiber.Ctx) error {
+	outletID, _ := c.Locals("outlet_id").(string)
+
+	var outlet models.Outlet
+	if err := h.db.Where("id = ?", outletID).First(&outlet).Error; err != nil {
+		h.db.First(&outlet)
+	}
+
+	var sysConfigs []models.SystemConfig
+	h.db.Find(&sysConfigs)
+
+	featureFlags := map[string]bool{
+		"enable_tables":   true,
+		"enable_kds":      true,
+		"enable_wld":      true,
+		"enable_bom":      true,
+		"enable_midtrans": true,
+	}
+
+	serverKey := os.Getenv("MIDTRANS_SERVER_KEY")
+	clientKey := os.Getenv("MIDTRANS_CLIENT_KEY")
+	if strings.Contains(serverKey, "placeholder") {
+		serverKey = ""
+	}
+	if strings.Contains(clientKey, "placeholder") {
+		clientKey = ""
+	}
+	isProd := os.Getenv("MIDTRANS_IS_PRODUCTION") == "true"
+
+	for _, cfg := range sysConfigs {
+		if strings.HasPrefix(cfg.Key, "enable_") {
+			featureFlags[cfg.Key] = (cfg.Value == "true")
+		}
+		if cfg.Key == "midtrans_server_key" {
+			if strings.Contains(cfg.Value, "placeholder") {
+				serverKey = ""
+			} else {
+				serverKey = cfg.Value
+			}
+		}
+		if cfg.Key == "midtrans_client_key" {
+			if strings.Contains(cfg.Value, "placeholder") {
+				clientKey = ""
+			} else {
+				clientKey = cfg.Value
+			}
+		}
+		if cfg.Key == "midtrans_is_production" {
+			isProd = (cfg.Value == "true")
+		}
+	}
+
+	return utils.SendSuccess(c, fiber.StatusOK, "Pengaturan sistem berhasil diambil", fiber.Map{
+		"outlet":                 outlet,
+		"feature_flags":          featureFlags,
+		"midtrans_server_key":    serverKey,
+		"midtrans_client_key":    clientKey,
+		"midtrans_is_production": isProd,
+	})
+}
+
+// UpdateSettings memperbarui kredensial outlet, Midtrans, dan feature flags. Wajib diverifikasi dengan PIN Supervisor.
+func (h *SetupHandler) UpdateSettings(c *fiber.Ctx) error {
+	outletID, _ := c.Locals("outlet_id").(string)
+
+	var req UpdateSettingsRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, "Body JSON tidak valid", err.Error())
+	}
+
+	if strings.TrimSpace(req.SupervisorPIN) == "" {
+		return utils.SendError(c, fiber.StatusForbidden, "PIN Supervisor wajib diisi untuk menyimpan perubahan pengaturan", nil)
+	}
+
+	// Memverifikasi PIN Supervisor
+	valid, _, err := middleware.VerifySupervisorPIN(h.db, outletID, req.SupervisorPIN)
+	if err != nil || !valid {
+		return utils.SendError(c, fiber.StatusForbidden, "Otorisasi Gagal: PIN Supervisor tidak valid", nil)
+	}
+
+	// 1. Perbarui data Outlet
+	var outlet models.Outlet
+	if err := h.db.Where("id = ?", outletID).First(&outlet).Error; err != nil {
+		if err := h.db.First(&outlet).Error; err != nil {
+			return utils.SendError(c, fiber.StatusNotFound, "Data outlet tidak ditemukan", err.Error())
+		}
+	}
+
+	if req.OutletName != "" {
+		outlet.Name = req.OutletName
+	}
+	outlet.Tagline = req.OutletTagline
+	outlet.Address = req.OutletAddress
+	outlet.Phone = req.OutletPhone
+	outlet.ReceiptFooter = req.ReceiptFooter
+	outlet.TaxPercentage = req.TaxPercentage
+	outlet.ServicePercentage = req.ServicePercentage
+	outlet.IsTaxInclusive = req.IsTaxInclusive
+	outlet.UpdatedAt = time.Now()
+
+	if err := h.db.Save(&outlet).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, "Gagal memperbarui profil outlet", err.Error())
+	}
+
+	// 2. Perbarui SystemConfig & Env Variables
+	envUpdates := make(map[string]string)
+
+	if req.EnableTables != nil {
+		saveSysConfig(h.db, "enable_tables", fmt.Sprintf("%t", *req.EnableTables))
+	}
+	if req.EnableKDS != nil {
+		saveSysConfig(h.db, "enable_kds", fmt.Sprintf("%t", *req.EnableKDS))
+	}
+	if req.EnableWLD != nil {
+		saveSysConfig(h.db, "enable_wld", fmt.Sprintf("%t", *req.EnableWLD))
+	}
+	if req.EnableBOM != nil {
+		saveSysConfig(h.db, "enable_bom", fmt.Sprintf("%t", *req.EnableBOM))
+	}
+	if req.EnableMidtrans != nil {
+		saveSysConfig(h.db, "enable_midtrans", fmt.Sprintf("%t", *req.EnableMidtrans))
+	}
+
+	if req.MidtransServerKey != "" {
+		saveSysConfig(h.db, "midtrans_server_key", req.MidtransServerKey)
+		envUpdates["MIDTRANS_SERVER_KEY"] = req.MidtransServerKey
+		os.Setenv("MIDTRANS_SERVER_KEY", req.MidtransServerKey)
+	}
+
+	if req.MidtransClientKey != "" {
+		saveSysConfig(h.db, "midtrans_client_key", req.MidtransClientKey)
+		envUpdates["MIDTRANS_CLIENT_KEY"] = req.MidtransClientKey
+		os.Setenv("MIDTRANS_CLIENT_KEY", req.MidtransClientKey)
+	}
+
+	if req.MidtransIsProduction != nil {
+		isProdStr := fmt.Sprintf("%t", *req.MidtransIsProduction)
+		saveSysConfig(h.db, "midtrans_is_production", isProdStr)
+		envUpdates["MIDTRANS_IS_PRODUCTION"] = isProdStr
+		os.Setenv("MIDTRANS_IS_PRODUCTION", isProdStr)
+	}
+
+	if len(envUpdates) > 0 {
+		_ = updateDotEnv(envUpdates)
+	}
+
+	return utils.SendSuccess(c, fiber.StatusOK, "Pengaturan sistem berhasil diperbarui", fiber.Map{
+		"outlet_id": outlet.ID,
+		"updated":   true,
 	})
 }

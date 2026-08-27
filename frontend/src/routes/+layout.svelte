@@ -24,6 +24,7 @@
     History,
     BarChart3,
     Users,
+    Settings,
     Wallet,
     LogOut,
     User as UserIcon,
@@ -258,6 +259,18 @@
           >
             <Users class="w-4 h-4" /> Pengguna
           </a>
+
+          {#if $currentUser?.role === 'superadmin'}
+            <a
+              href="/admin/settings"
+              class="px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 min-h-[44px]
+              {$page.url.pathname.startsWith('/admin/settings')
+                ? 'bg-brand-primary text-white shadow-md'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'}"
+            >
+              <Settings class="w-4 h-4" /> Pengaturan
+            </a>
+          {/if}
         </nav>
       </div>
 
@@ -413,6 +426,18 @@
             >
               <Users class="w-5 h-5" /> Manajemen Pengguna
             </a>
+
+            {#if $currentUser?.role === 'superadmin'}
+              <a
+                href="/admin/settings"
+                class="px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 min-h-[48px]
+                {$page.url.pathname.startsWith('/admin/settings')
+                  ? 'bg-brand-primary text-white shadow-md'
+                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'}"
+              >
+                <Settings class="w-5 h-5" /> Pengaturan Sistem
+              </a>
+            {/if}
           </nav>
         </div>
 

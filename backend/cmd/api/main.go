@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -51,9 +53,85 @@ func setupStaticSPA(app *fiber.App) {
 	}))
 }
 
+func ensureTerminalOutput() {
+	if os.Getenv("SPOS_IN_TERMINAL") == "1" {
+		return
+	}
+
+	fi, err := os.Stdout.Stat()
+	isTTY := false
+	if err == nil {
+		isTTY = (fi.Mode() & os.ModeCharDevice) != 0
+	}
+
+	if isTTY {
+		return
+	}
+
+	executable, err := os.Executable()
+	if err != nil {
+		return
+	}
+
+	env := append(os.Environ(), "SPOS_IN_TERMINAL=1")
+
+	switch runtime.GOOS {
+	case "linux":
+		emulators := [][]string{
+			{"x-terminal-emulator", "-e"},
+			{"gnome-terminal", "--"},
+			{"konsole", "-e"},
+			{"xfce4-terminal", "-e"},
+			{"alacritty", "-e"},
+			{"kitty", "-e"},
+			{"xterm", "-e"},
+		}
+		for _, em := range emulators {
+			path, err := exec.LookPath(em[0])
+			if err == nil {
+				args := append(em[1:], executable)
+				cmd := exec.Command(path, args...)
+				cmd.Env = env
+				if err := cmd.Start(); err == nil {
+					os.Exit(0)
+				}
+			}
+		}
+	case "windows":
+		cmd := exec.Command("cmd.exe", "/k", executable)
+		cmd.Env = env
+		if err := cmd.Start(); err == nil {
+			os.Exit(0)
+		}
+	case "darwin":
+		script := fmt.Sprintf(`tell application "Terminal" to do script "export SPOS_IN_TERMINAL=1; %q"`, executable)
+		cmd := exec.Command("osascript", "-e", script)
+		if err := cmd.Start(); err == nil {
+			os.Exit(0)
+		}
+	}
+}
+
 func main() {
+	// Pemicu otomatis jendela CLI/Terminal jika program diklik via GUI File Manager
+	ensureTerminalOutput()
+
 	// 1. Memuat Konfigurasi Aplikasi
 	cfg := config.LoadConfig()
+
+	fmt.Println()
+	fmt.Println("==========================================================================")
+	fmt.Println("                      SPOS F&B ENGINE v1.0                                ")
+	fmt.Println("==========================================================================")
+	fmt.Printf(" [STATUS]   : Program sedang berjalan (Listening pada Port %s)\n", cfg.Port)
+	fmt.Printf(" [URL]      : http://localhost:%s\n", cfg.Port)
+	fmt.Printf(" [DATABASE] : %s (%s)\n", cfg.DBDriver, cfg.DBDsn)
+	fmt.Println("==========================================================================")
+	fmt.Println(" Silakan buka URL di atas pada browser. JANGAN tutup jendela terminal ini.")
+	fmt.Println(" Tekan Ctrl+C di sini untuk menghentikan program.")
+	fmt.Println("==========================================================================")
+	fmt.Println()
+
 	log.Printf("[STARTUP] Memulai SPOS Server pada port :%s", cfg.Port)
 
 	// 2. Inisialisasi Koneksi Database Multi-Driver & Jalankan Migrasi Otomatis
@@ -130,6 +208,10 @@ func main() {
 	authRoutes.Post("/refresh", jwtGuard, authH.RefreshToken)
 	authRoutes.Post("/verify-pin", jwtGuard, authLimiter, authH.VerifyPIN)
 	authRoutes.Get("/me", jwtGuard, authH.Me)
+
+	// Pengaturan Sistem (Superadmin Only)
+	setupRoutes.Get("/settings", jwtGuard, middleware.RoleGuard("superadmin"), setupH.GetSettings)
+	setupRoutes.Put("/settings", jwtGuard, middleware.RoleGuard("superadmin"), setupH.UpdateSettings)
 
 	// Manajemen Pengguna
 	adminGuard := middleware.RoleGuard("superadmin", "manager")

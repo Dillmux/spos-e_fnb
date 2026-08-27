@@ -141,27 +141,42 @@
         </div>
       </div>
 
-      <div class="pt-2 flex items-center justify-between">
-        <button
-          type="button"
-          on:click={testMidtransCredentials}
-          disabled={isTestingMidtrans}
-          class="px-5 py-2.5 min-h-[48px] font-bold text-slate-900 bg-brand-cyan hover:bg-cyan-300 rounded-xl flex items-center gap-2 transition"
-        >
-          {#if isTestingMidtrans}
-            <RefreshCw class="w-4 h-4 animate-spin" />
-            Pengujian...
-          {:else}
-            <CheckCircle class="w-4 h-4" />
-            Uji Midtrans API Key
-          {/if}
-        </button>
-
-        {#if midtransStatus}
-          <span class="text-xs font-semibold text-brand-cyan"
-            >{midtransStatus}</span
+      <div
+        class="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+      >
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            bind:checked={formData.midtrans_is_production}
+            class="w-5 h-5 accent-brand-cyan rounded cursor-pointer"
+          />
+          <span class="text-xs font-bold text-slate-300"
+            >Gunakan Mode Production (Centang jika Akun Live Midtrans)</span
           >
-        {/if}
+        </label>
+
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            on:click={testMidtransCredentials}
+            disabled={isTestingMidtrans}
+            class="px-5 py-2.5 min-h-[48px] font-bold text-slate-900 bg-brand-cyan hover:bg-cyan-300 rounded-xl flex items-center gap-2 transition"
+          >
+            {#if isTestingMidtrans}
+              <RefreshCw class="w-4 h-4 animate-spin" />
+              Pengujian...
+            {:else}
+              <CheckCircle class="w-4 h-4" />
+              Uji Midtrans API Key
+            {/if}
+          </button>
+
+          {#if midtransStatus}
+            <span class="text-xs font-semibold text-brand-cyan"
+              >{midtransStatus}</span
+            >
+          {/if}
+        </div>
       </div>
     </div>
   {/if}

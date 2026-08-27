@@ -36,6 +36,7 @@ export interface SetupPayload {
   is_tax_inclusive: boolean;
   midtrans_server_key?: string;
   midtrans_client_key?: string;
+  midtrans_is_production?: boolean;
   admin_name: string;
   admin_username: string;
   admin_password: string;
