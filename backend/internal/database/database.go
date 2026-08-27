@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"strings"
 	"time"
 
@@ -15,6 +16,56 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+// ParseMySQLDSN menormalisasi string koneksi MySQL/MariaDB dari format URL (mysql://user:pass@host:port/db) maupun format DSN go-sql-driver (user:pass@tcp(host:port)/db).
+func ParseMySQLDSN(dsn string) string {
+	dsn = strings.TrimSpace(dsn)
+	if dsn == "" {
+		return dsn
+	}
+
+	if strings.HasPrefix(dsn, "mysql://") || strings.HasPrefix(dsn, "mariadb://") {
+		u, err := url.Parse(dsn)
+		if err == nil {
+			user := u.User.Username()
+			pass, _ := u.User.Password()
+			host := u.Host
+			dbName := strings.TrimPrefix(u.Path, "/")
+
+			queryParams := u.Query()
+			tlsVal := queryParams.Get("tls")
+			if tlsVal == "" {
+				sslMode := strings.ToUpper(queryParams.Get("ssl-mode"))
+				if sslMode == "REQUIRED" || sslMode == "TRUE" {
+					tlsVal = "true"
+				} else if sslMode == "DISABLED" || sslMode == "FALSE" {
+					tlsVal = "false"
+				} else if sslMode == "SKIP-VERIFY" {
+					tlsVal = "skip-verify"
+				} else {
+					tlsVal = "true"
+				}
+			}
+
+			if pass != "" {
+				dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=%s", user, pass, host, dbName, tlsVal)
+			} else if user != "" {
+				dsn = fmt.Sprintf("%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=%s", user, host, dbName, tlsVal)
+			}
+			return dsn
+		}
+	}
+
+	// Format DSN standar Go: Tambahkan parseTime=True jika belum ada
+	if !strings.Contains(dsn, "parseTime=") {
+		if strings.Contains(dsn, "?") {
+			dsn += "&parseTime=True"
+		} else {
+			dsn += "?parseTime=True"
+		}
+	}
+	return dsn
+}
+
 // InitDB menginisialisasi koneksi database GORM berdasarkan konfigurasi driver (SQLite/PostgreSQL/MySQL) dan menjalankan auto-migrasi skema.
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	var dialector gorm.Dialector
@@ -23,7 +74,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	case "postgres", "postgresql":
 		dialector = postgres.Open(cfg.DBDsn)
 	case "mysql", "mariadb":
-		dialector = mysql.Open(cfg.DBDsn)
+		dialector = mysql.Open(ParseMySQLDSN(cfg.DBDsn))
 	case "sqlite", "sqlite3":
 		dialector = sqlite.Open(cfg.DBDsn)
 	default:

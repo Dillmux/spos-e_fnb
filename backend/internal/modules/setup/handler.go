@@ -172,6 +172,7 @@ func (h *SetupHandler) TestDB(c *fiber.Ctx) error {
 	case "postgres", "postgresql":
 		dialector = postgres.Open(req.DSN)
 	case "mysql", "mariadb":
+		req.DSN = database.ParseMySQLDSN(req.DSN)
 		dialector = mysql.Open(req.DSN)
 	default:
 		dialector = sqlite.Open(req.DSN)
@@ -183,8 +184,12 @@ func (h *SetupHandler) TestDB(c *fiber.Ctx) error {
 	}
 
 	sqlDB, err := testConn.DB()
-	if err != nil || sqlDB.Ping() != nil {
-		return utils.SendError(c, fiber.StatusBadRequest, "Ping database gagal", "Tidak dapat menghubungi server database")
+	if err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, "Gagal membaca koneksi DB", err.Error())
+	}
+
+	if pingErr := sqlDB.Ping(); pingErr != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, "Ping database gagal", pingErr.Error())
 	}
 
 	return utils.SendSuccess(c, fiber.StatusOK, "Uji koneksi database berhasil", fiber.Map{
@@ -300,6 +305,9 @@ func (h *SetupHandler) Initialize(c *fiber.Ctx) error {
 		switch targetDriver {
 		case "postgres", "postgresql":
 			dialector = postgres.Open(targetDSN)
+		case "mysql", "mariadb":
+			targetDSN = database.ParseMySQLDSN(targetDSN)
+			dialector = mysql.Open(targetDSN)
 		default:
 			dialector = sqlite.Open(targetDSN)
 		}
