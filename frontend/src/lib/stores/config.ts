@@ -7,6 +7,7 @@ interface ConfigState {
   checkingStatus: boolean;
   outlet: Outlet | null;
   featureFlags: FeatureFlags;
+  midtransConfigured: boolean;
 }
 
 const defaultConfigState: ConfigState = {
@@ -20,6 +21,7 @@ const defaultConfigState: ConfigState = {
     enable_bom: true,
     enable_midtrans: true,
   },
+  midtransConfigured: false,
 };
 
 const store = writable<ConfigState>(defaultConfigState);
@@ -39,6 +41,7 @@ export const config = {
           featureFlags: res.data?.feature_flags
             ? { ...s.featureFlags, ...res.data.feature_flags }
             : s.featureFlags,
+          midtransConfigured: res.data?.midtrans_configured ?? false,
           checkingStatus: false,
         }));
       }
@@ -47,12 +50,13 @@ export const config = {
     }
   },
 
-  setConfig: (data: { initialized: boolean; outlet?: Outlet; featureFlags?: FeatureFlags }) => {
+  setConfig: (data: { initialized: boolean; outlet?: Outlet; featureFlags?: FeatureFlags; midtransConfigured?: boolean }) => {
     store.update((s) => ({
       ...s,
       initialized: data.initialized,
       outlet: data.outlet || s.outlet,
       featureFlags: data.featureFlags || s.featureFlags,
+      midtransConfigured: data.midtransConfigured ?? s.midtransConfigured,
       checkingStatus: false,
     }));
   },
@@ -68,3 +72,4 @@ export const config = {
 export const isInitialized = derived(store, ($s) => $s.initialized);
 export const featureFlags = derived(store, ($s) => $s.featureFlags);
 export const outletProfile = derived(store, ($s) => $s.outlet);
+export const midtransConfigured = derived(store, ($s) => $s.midtransConfigured);

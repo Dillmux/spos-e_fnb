@@ -2,7 +2,7 @@
   import { onDestroy } from "svelte";
   import { cart, cartTotals } from "$lib/stores/cart";
   import { printer } from "$lib/stores/printer";
-  import { config, featureFlags } from "$lib/stores/config";
+  import { config, featureFlags, midtransConfigured } from "$lib/stores/config";
   import { posApi } from "$lib/api/pos";
   import { shiftsApi } from "$lib/api/shifts";
   import { toast } from "$lib/stores/toast";
@@ -19,6 +19,8 @@
     Clock,
     RefreshCw,
     Utensils,
+    AlertTriangle,
+    KeyRound,
   } from "lucide-svelte";
 
   export let isOpen: boolean = false;
@@ -397,7 +399,9 @@
           type="button"
           on:click={() => {
             activeMethod = "qris";
-            startQRISFlow();
+            if ($featureFlags.enable_midtrans && $midtransConfigured) {
+              startQRISFlow();
+            }
           }}
           class="touch-target py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition
           {activeMethod === 'qris'
@@ -503,6 +507,30 @@
             Konfigurasi Modul. Gunakan metode pembayaran Tunai (Cash Engine)
             atau aktifkan modul Midtrans di pengaturan.
           </p>
+        </div>
+      {:else if !$midtransConfigured}
+        <div
+          class="p-6 bg-amber-50/80 rounded-2xl border border-amber-200 flex flex-col items-center justify-center text-center space-y-3 select-none animate-in fade-in duration-200"
+        >
+          <div class="p-3 bg-amber-100 text-amber-600 rounded-full shadow-sm">
+            <AlertTriangle class="w-10 h-10" />
+          </div>
+          <h4 class="font-bold text-amber-900 text-base">
+            Midtrans Tidak Diatur
+          </h4>
+          <p class="text-xs text-amber-700 max-w-md leading-relaxed">
+            Kredensial API Key Midtrans (Server Key & Client Key) belum diisi.
+            Silakan atur Server Key di Setup Wizard atau Pengaturan RESTO untuk
+            mengaktifkan pembayaran Dynamic QRIS otomatis.
+          </p>
+          <div class="pt-1">
+            <span
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-200/70 text-amber-900 rounded-full text-xs font-bold border border-amber-300/50"
+            >
+              <KeyRound class="w-4 h-4 text-amber-700" />
+              Midtrans Server Key Kosong / Belum Dikonfigurasi
+            </span>
+          </div>
         </div>
       {:else}
         <div

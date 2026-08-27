@@ -12,17 +12,18 @@ export interface SetupStatus {
   outlet_name?: string;
   outlet?: Outlet;
   feature_flags?: FeatureFlags;
+  midtrans_configured?: boolean;
 }
 
 export interface SetupPayload {
-  db_driver: 'sqlite' | 'postgres' | 'mysql';
+  db_driver: "sqlite" | "postgres" | "mysql";
   db_connection_string?: string;
   outlet_name: string;
   outlet_tagline?: string;
   outlet_address: string;
   outlet_phone: string;
-  business_type: 'cafe' | 'resto' | 'cloud_kitchen';
-  service_modes: ('dine_in' | 'take_away' | 'delivery')[];
+  business_type: "cafe" | "resto" | "cloud_kitchen";
+  service_modes: ("dine_in" | "take_away" | "delivery")[];
   active_modules: {
     enable_tables: boolean;
     enable_kds: boolean;
@@ -47,8 +48,8 @@ export interface Outlet {
   tagline?: string;
   address: string;
   phone: string;
-  business_type: 'cafe' | 'resto' | 'cloud_kitchen';
-  service_modes: ('dine_in' | 'take_away' | 'delivery')[];
+  business_type: "cafe" | "resto" | "cloud_kitchen";
+  service_modes: ("dine_in" | "take_away" | "delivery")[];
   tax_percentage: number;
   service_percentage: number;
   is_tax_inclusive: boolean;
@@ -63,7 +64,7 @@ export interface User {
   name: string;
   username: string;
   email?: string;
-  role: 'superadmin' | 'manager' | 'cashier' | 'kitchen';
+  role: "superadmin" | "manager" | "cashier" | "kitchen";
   is_active: boolean;
   has_pin?: boolean;
 }
@@ -121,7 +122,7 @@ export interface Table {
   table_number: string;
   name?: string;
   capacity: number;
-  status: 'available' | 'occupied' | 'reserved';
+  status: "available" | "occupied" | "reserved";
   active_order_id?: string;
 }
 
@@ -131,7 +132,7 @@ export interface CartItem {
   quantity: number;
   notes: string;
   discount_amount: number;
-  split_group?: 'A' | 'B';
+  split_group?: "A" | "B";
 }
 
 export interface OrderItem {
@@ -145,7 +146,13 @@ export interface OrderItem {
   subtotal: number;
   item_notes?: string;
   notes?: string;
-  kitchen_status: 'queued' | 'cooking' | 'ready' | 'served' | 'pending' | 'preparing';
+  kitchen_status:
+    | "queued"
+    | "cooking"
+    | "ready"
+    | "served"
+    | "pending"
+    | "preparing";
   Product?: Product;
   product?: Product;
 }
@@ -159,8 +166,8 @@ export interface Order {
   table_id?: number | string;
   table_name?: string;
   table_number?: string;
-  service_type: 'dine_in' | 'take_away' | 'delivery';
-  service_mode?: 'dine_in' | 'take_away' | 'delivery';
+  service_type: "dine_in" | "take_away" | "delivery";
+  service_mode?: "dine_in" | "take_away" | "delivery";
   customer_name?: string;
   subtotal: number;
   tax_amount: number;
@@ -168,7 +175,17 @@ export interface Order {
   discount_amount: number;
   total_amount: number;
   queue_number?: number;
-  status: 'open' | 'pending_payment' | 'paid' | 'cancelled' | 'split' | 'pending' | 'preparing' | 'ready' | 'completed' | 'void';
+  status:
+    | "open"
+    | "pending_payment"
+    | "paid"
+    | "cancelled"
+    | "split"
+    | "pending"
+    | "preparing"
+    | "ready"
+    | "completed"
+    | "void";
   OrderItems?: OrderItem[];
   items?: OrderItem[];
   Table?: Table;
@@ -181,7 +198,13 @@ export interface Order {
 export interface Payment {
   id: string;
   order_id: string;
-  payment_method: 'cash' | 'qris_static' | 'midtrans_dynamic' | 'debit_edc' | 'transfer' | 'qris';
+  payment_method:
+    | "cash"
+    | "qris_static"
+    | "midtrans_dynamic"
+    | "debit_edc"
+    | "transfer"
+    | "qris";
   amount_paid: number;
   cash_tendered?: number;
   gross_amount?: number;
@@ -192,7 +215,7 @@ export interface Payment {
   qris_url?: string;
   qr_string?: string;
   qris_payload?: string;
-  status: 'pending' | 'settlement' | 'expired' | 'denied' | 'expire' | 'cancel';
+  status: "pending" | "settlement" | "expired" | "denied" | "expire" | "cancel";
   created_at?: string;
   settled_at?: string;
 }
@@ -209,7 +232,7 @@ export interface Shift {
   cash_difference?: number;
   total_cash_sales?: number;
   total_qris_sales?: number;
-  status: 'open' | 'closed';
+  status: "open" | "closed";
   notes?: string;
 }
 
@@ -217,7 +240,7 @@ export interface CashMovement {
   id: string;
   shift_id: string;
   user_id?: string;
-  type: 'cash_in' | 'cash_out' | 'in' | 'out';
+  type: "cash_in" | "cash_out" | "in" | "out";
   amount: number;
   notes?: string;
   reason?: string;
@@ -263,4 +286,3 @@ export interface DailyReport {
     total_revenue?: number;
   }[];
 }
-

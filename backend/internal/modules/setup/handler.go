@@ -14,7 +14,6 @@ import (
 	"github.com/spos/backend/internal/models"
 	"github.com/spos/backend/internal/utils"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -135,18 +134,27 @@ func (h *SetupHandler) GetStatus(c *fiber.Ctx) error {
 		"enable_bom":      true,
 		"enable_midtrans": true,
 	}
+	hasMidtransKey := false
+	if serverKey := os.Getenv("MIDTRANS_SERVER_KEY"); serverKey != "" && !strings.Contains(serverKey, "placeholder") {
+		hasMidtransKey = true
+	}
+
 	for _, cfg := range sysConfigs {
 		if strings.HasPrefix(cfg.Key, "enable_") {
 			featureFlags[cfg.Key] = (cfg.Value == "true")
 		}
+		if cfg.Key == "midtrans_server_key" && cfg.Value != "" && !strings.Contains(cfg.Value, "placeholder") {
+			hasMidtransKey = true
+		}
 	}
 
 	return utils.SendSuccess(c, fiber.StatusOK, "Status setup berhasil diambil", fiber.Map{
-		"initialized":   isInitialized,
-		"db_connected":  true,
-		"outlet_name":   outletName,
-		"outlet":        outlet,
-		"feature_flags": featureFlags,
+		"initialized":         isInitialized,
+		"db_connected":        true,
+		"outlet_name":         outletName,
+		"outlet":              outlet,
+		"feature_flags":       featureFlags,
+		"midtrans_configured": hasMidtransKey,
 	})
 }
 
@@ -171,9 +179,6 @@ func (h *SetupHandler) TestDB(c *fiber.Ctx) error {
 	switch strings.ToLower(req.Driver) {
 	case "postgres", "postgresql":
 		dialector = postgres.Open(req.DSN)
-	case "mysql", "mariadb":
-		req.DSN = database.ParseMySQLDSN(req.DSN)
-		dialector = mysql.Open(req.DSN)
 	default:
 		dialector = sqlite.Open(req.DSN)
 	}
@@ -305,9 +310,6 @@ func (h *SetupHandler) Initialize(c *fiber.Ctx) error {
 		switch targetDriver {
 		case "postgres", "postgresql":
 			dialector = postgres.Open(targetDSN)
-		case "mysql", "mariadb":
-			targetDSN = database.ParseMySQLDSN(targetDSN)
-			dialector = mysql.Open(targetDSN)
 		default:
 			dialector = sqlite.Open(targetDSN)
 		}

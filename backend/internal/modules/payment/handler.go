@@ -310,6 +310,7 @@ func (h *PaymentHandler) MidtransCharge(c *fiber.Ctx) error {
 		"qris_url":                qrisURL,
 		"qr_string":               qrString,
 		"status":                  "pending",
+		"is_configured":           serverKey != "",
 	})
 }
 

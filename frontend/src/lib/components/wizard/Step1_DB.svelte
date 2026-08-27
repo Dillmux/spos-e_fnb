@@ -48,7 +48,7 @@
     </p>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <button
       type="button"
       on:click={() => {
@@ -94,29 +94,6 @@
         >Cloud Multi-Branch</span
       >
     </button>
-
-    <button
-      type="button"
-      on:click={() => {
-        formData.db_driver = "mysql";
-        testSuccess = false;
-      }}
-      class="p-5 rounded-2xl border-2 text-left transition flex flex-col justify-between h-36
-      {formData.db_driver === 'mysql'
-        ? 'border-brand-primary bg-brand-primary/5 ring-2 ring-brand-cyan/50'
-        : 'border-slate-200 bg-white hover:border-slate-300'}"
-    >
-      <div>
-        <h4 class="font-bold text-lg text-slate-800">MySQL / MariaDB</h4>
-        <p class="text-xs text-slate-500 mt-1">
-          Kompatibel dengan VPS & Shared Hosting.
-        </p>
-      </div>
-      <span
-        class="text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full w-max"
-        >Enterprise Standard</span
-      >
-    </button>
   </div>
 
   {#if formData.db_driver !== "sqlite"}
@@ -128,9 +105,7 @@
         id="db-conn"
         type="text"
         bind:value={formData.db_connection_string}
-        placeholder={formData.db_driver === "mysql"
-          ? "user:password@tcp(mysql-host.aivencloud.com:28607)/defaultdb?tls=true&parseTime=True"
-          : "postgres://user:password@localhost:5432/spos_db?sslmode=disable"}
+        placeholder="postgres://user:password@localhost:5432/spos_db?sslmode=disable"
         class="w-full px-4 py-3 min-h-[48px] bg-white border border-slate-300 focus:border-brand-primary focus:ring-2 focus:ring-brand-cyan/50 rounded-xl font-mono text-sm shadow-sm outline-none transition"
       />
     </div>
